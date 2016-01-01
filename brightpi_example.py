@@ -3,23 +3,30 @@
 from brightpi import *
 import time
 
-#switch_white_leds_on()
-
-#for led in [2, 4, 5, 7]:
-#    for i in range(0, 50):
-#        dim_led(led, i)
-#        time.sleep(0.1)
-#
-#    for i in range(-50, 0):
-#        dim_led(led, abs(i))
-#        time.sleep(0.1)
+WHITE_LEDS = [2, 4, 5, 7]
 
 try:
-    while True:
-        for led in [2, 4, 5, 7]:
+    for i in range(1, 5):
+        for led in WHITE_LEDS:
             dim_led(led, 50)
-            switch_led_on(led)
+            set_led_state(led, not get_led_state(led))
+            time.sleep(0.1)
+
+    # dim in LEDs
+    for i in range(1, 30):
+        for led in WHITE_LEDS:
+            dim_led(led, i)
+            set_led_state(led, True)
             time.sleep(0.05)
+
+    # dim out LEDs
+    for i in range(-30, -1):
+        for led in WHITE_LEDS:
+            dim_led(led, abs(i))
+            set_led_state(led, True)
+            time.sleep(0.05)
+
+    switch_leds_off()
 
 except KeyboardInterrupt:
     switch_leds_off()

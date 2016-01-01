@@ -18,13 +18,10 @@ import smbus
 
 bus = smbus.SMBus(1)
 
-
 DEVICE_ADDRESS        = 0x70
 LED_CONTROL_ALL_WHITE = 0x5a
 LED_CONTROL_ALL_IR    = 0xa5
 LED_GAIN_REGISTER     = 0x09
-
-
 
 def switch_white_leds_on():
     bus.write_byte_data(DEVICE_ADDRESS, 0x00, LED_CONTROL_ALL_WHITE)
@@ -35,9 +32,24 @@ def switch_ir_leds_on():
 def switch_leds_off():
     bus.write_byte_data(DEVICE_ADDRESS, 0x00, 0x00)
 
-def switch_led_on(led):
+def get_led_states():
+    return bus.read_byte_data(DEVICE_ADDRESS, 0x00)
+
+def get_led_state(led):
     if led >= 1 and led <= 8:
-        bus.write_byte_data(DEVICE_ADDRESS, 0x00, 0b1 << led - 1)
+        states = get_led_states()
+        if (states >> led - 1) & 0x01:
+            return True
+        else:
+            return False 
+
+def set_led_state(led, state):
+    if led >= 1 and led <= 8:
+        states = get_led_states()
+        if state:
+            bus.write_byte_data(DEVICE_ADDRESS, 0x00, states | (0x01 << led - 1))
+        else:
+            bus.write_byte_data(DEVICE_ADDRESS, 0x00, states & ~(0x01 << led - 1))
 
 def set_gain(gain):
     # gain is a 4 bit value
@@ -53,3 +65,4 @@ def dim_led(led, value):
     # dim values range between 0 and 50
     if led >= 1 and led <= 8 and value >= 0 and value <= 50:
         bus.write_byte_data(DEVICE_ADDRESS, led, value)
+
